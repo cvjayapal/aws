@@ -1,0 +1,151 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  CognitoDomain:
+    Type: String
+    Description: Enter a string. Must be alpha numeric 3-63 in length.
+  Stage:
+    Type: String
+    Description: Unique Auth Name for Cognito Resources
+  CallbackURL:
+    Type: String
+    Description: Unique Auth Name for Cognito Resources 
+  LogoutURL:
+    Type: String
+    Description: Unique Auth Name for Cognito Resources
+  product:
+    Type: String
+    Default: common
+  ecosystem:
+    Type: String
+    Default: resi
+  appfeature:
+    Type: String
+    Default: foundation
+  UserPoolName:
+    Type: String
+    Description: Userpool Name
+  ClientName:
+    Type: String
+    Description: ClientName
+    
+
+Resources:
+  SNSRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: !Sub pentairadmin-SMS-Role-${Stage}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "cognito-idp.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "CognitoSNSPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "sns:publish"
+                Resource: "*"
+      Tags:
+        - Key: "product"
+          Value: !Ref product
+        - Key: "ecosystem"
+          Value: !Ref ecosystem
+        - Key: "stage"
+          Value: !Ref Stage
+        - Key: "costcenter"
+          Value: !Join [ ':', [!Ref product, !Ref ecosystem, !Ref Stage] ]
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AccountRecoverySetting:
+        RecoveryMechanisms: 
+          - Name: verified_email
+            Priority: 1
+      UsernameConfiguration: 
+        CaseSensitive: false
+      AliasAttributes:
+        - email
+        - preferred_username
+      AutoVerifiedAttributes:
+        - email
+      MfaConfiguration: OPTIONAL
+      EnabledMfas:
+        - SOFTWARE_TOKEN_MFA
+        - SMS_MFA
+      SmsConfiguration:
+        ExternalId: !Sub ${Stage}-external
+        SnsCallerArn: !GetAtt SNSRole.Arn
+      UserPoolName: !Ref UserPoolName
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+        UnusedAccountValidityDays: 90
+      Schema:
+        - AttributeDataType: String
+          Mutable: true
+          Name: email
+          Required: true
+        - AttributeDataType: String
+          Mutable: true
+          Name: preferred_username
+          Required: false
+        - AttributeDataType: String
+          Mutable: true
+          Name: given_name
+          Required: true
+        - AttributeDataType: String
+          Mutable: true
+          Name: family_name
+          Required: true
+        - AttributeDataType: String
+          Mutable: true
+          Name: name
+          Required: true
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      AllowedOAuthFlowsUserPoolClient: true
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      ClientName: !Ref ClientName
+      CallbackURLs:
+        - !Ref CallbackURL
+      LogoutURLs:
+        - !Ref LogoutURL
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      AllowedOAuthScopes:
+        - phone
+        - email
+        - openid
+        - profile
+      SupportedIdentityProviders:
+        - COGNITO
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Ref CognitoDomain
+      UserPoolId: !Ref UserPool
+      
+
+Outputs:
+  CognitoUserPoolID:
+    Value: !Ref UserPool
+    Description: The UserPool ID
+  CognitoAppClientID:
+    Value: !Ref UserPoolClient
+    Description: The app client
+  HostedUIURL:
+    Value: !Sub https://${CognitoDomain}.auth.us-west-2.amazoncognito.com/login?client_id=${UserPoolClient}&response_type=code&scope=email+openid+phone+profile&redirect_uri=http://localhost:3000
+    Description: The hosted UI URL
