@@ -1,0 +1,24 @@
+#!/usr/bin/python3
+import csv
+import boto3
+#time = datetime.datetime.now().strftime ('%Y-%m-%d-%H-%M-%S')
+filename_describe_instances = ('ec2_inventory_me-south-1.csv')
+fieldnames = ['Name','Arn']
+response={
+"Endpoints": [ ]
+}
+#print(response['Endpoints'][0]['EndpointName'])
+with open(filename_describe_instances, 'w', newline='') as csvFile:
+    writer = csv.writer(csvFile, dialect='excel')
+    writer.writerow(fieldnames)
+    for endpoint in response['Endpoints']:
+        #Name=print(endpoint['EndpointName'])
+        Name=endpoint['EndpointName']
+        Arn=endpoint['EndpointArn']
+        #print(endpoint['EndpointArn'])
+        raw = [Name,Arn]
+        writer.writerow(raw)
+        for o in raw:
+            o = 'NULL'
+        raw = []
+csvFile.close()
