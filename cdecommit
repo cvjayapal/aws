@@ -1,0 +1,49 @@
+import json
+import boto3
+import os
+import sys
+client = boto3.client('codecommit')
+getrepo=client.list_repositories()
+print(getrepo)
+#print(getrepo['repositories'][0]['repositoryName'])
+#print(getrepo['ResponseMetadata'])
+getcommit = client.get_commit(
+    repositoryName=getrepo['repositories'][0]['repositoryName'],
+    commitId='173c0eae4405b8b9a6394c862aaed005fb519781'
+)
+print(getcommit)
+#print(getcommit['commitId'])
+print(getcommit['commit']['commitId'])
+#print(getcommit['commit']['treeId'])
+getbranch = client.get_branch(
+    repositoryName=getrepo['repositories'][0]['repositoryName'],
+    branchName='main'
+)
+print(getbranch)
+print(getbranch['branch']['branchName'])
+print(getbranch['branch']['commitId'])
+
+getfile = client.get_file(
+    repositoryName=getrepo['repositories'][0]['repositoryName'],
+    commitSpecifier=getbranch['branch']['commitId'],
+    filePath='cognitotest -hari.txt'
+)
+print(getfile)
+print(getfile['blobId'])
+getblob = client.get_blob(
+    repositoryName=getrepo['repositories'][0]['repositoryName'],
+    blobId=getfile['blobId']
+    )
+print(getblob)
+#with open('./readme.txt', 'w') as f:
+#   f.write('Create a new text file!')
+
+#f= open('dire/file1.txt','w')
+#f.write(getblob['content'])
+#f.close()
+getfolder = client.get_folder(
+    repositoryName=getrepo['repositories'][0]['repositoryName'],
+    commitSpecifier=getbranch['branch']['commitId'],
+    folderPath='/'
+)
+print(getfolder)
