@@ -1,0 +1,27 @@
+import json
+import boto3
+
+client = boto3.client('iam')
+
+def lambda_handler(event, context):
+    
+    # TODO implement
+    response = client.list_users()
+    print(response)
+    #print(response.items())
+    #print(response.items())
+    for key in response['Users']:
+        print (key['UserName'])
+        print(key['UserId'])
+    
+    
+    
+    #print(response['UserName'])
+    
+    #for users in response('Users'):
+        #print(['UserName'])
+    #print(type(response))
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }
