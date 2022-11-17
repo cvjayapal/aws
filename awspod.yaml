@@ -1,0 +1,11 @@
+apiVersion:v1
+kind:Pod
+metadata:
+  name:jaya-aws-pod
+  labels:
+    name:jaya-aws
+    app:jaya-awsapp
+spec:
+  containers:
+    - name: jaya-aws
+      image: cvjaipal/aws:1

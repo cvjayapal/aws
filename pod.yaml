@@ -1,0 +1,12 @@
+apiVersion:v1
+kind:Pod
+metadata:
+  name:jaya-ngnix-pod
+  labels:
+    name:jaya-nginx
+    app:jaya-web
+spec:
+  containers:
+    - name: jaya-nginx
+      image: nginx
+

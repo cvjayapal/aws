@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaya-nginx-deploy
+  labels:
+    app: jaya-web
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: jaya-web
+  template:
+    metadata:
+      name: jaya-ngnix-pod
+      labels:
+        name: jaya-nginx
+        app: jaya-web
+    spec:
+      containers:
+        - name: jaya-nginx
+          image: nginx

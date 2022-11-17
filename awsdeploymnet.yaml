@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaya-aws-deploy
+  labels:
+    app: jaya-awsapp
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: jaya-awsapp
+      name: jaya-aws
+  template:
+    metadata:
+      name: jaya-aws-pod
+      labels:
+        name: jaya-aws
+        app: jaya-awsapp
+    spec:
+       containers:
+         - name: jaya-aws
+           image: cvjaipal/aws:1
+      
