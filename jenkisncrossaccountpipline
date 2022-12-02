@@ -1,0 +1,13 @@
+pipeline {
+    agent any
+    stages {
+        stage('List production S3 buckets') {
+            steps {
+                withAWS(roleAccount:'where tou need to deploy', role:'crossps') {
+                    sh 'aws s3 ls'
+                    sh 'aws s3api create-bucket --bucket tekha-my-bucket --region us-east-1'
+                }
+            }
+        }
+    }
+}
