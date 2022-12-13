@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  CognitoDomain:
+    Type: String
+    Description: Enter a string. Must be alpha numeric 3-63 in length.
+  Stage:
+    Type: String
+    Description: Unique Auth Name for Cognito Resources
+    Default: dev
+  CallbackURL:
+    Type: String
+    Description: Unique Auth Name for Cognito Resources
+    Default: https://login 
+  LogoutURL:
+    Type: String
+    Description: Unique Auth Name for Cognito Resources
+    Default: https://logout
+  product:
+    Type: String
+    Default: common
+  ecosystem:
+    Type: String
+    Default: resi
+  appfeature:
+    Type: String
+    Default: foundation
+  UserPoolName:
+    Type: String
+    Description: Userpool Name
+  ClientName:
+    Type: String
+    Description: ClientName
+Resources:
+  Cognitodevstack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://testharitest.s3.us-east-2.amazonaws.com/cognitotesthari.yml
+      Parameters:
+        CognitoDomain: !Ref CognitoDomain
+        Stage: !Ref Stage
+        CallbackURL: !Ref CallbackURL
+        LogoutURL: !Ref LogoutURL
+        product: !Ref product
+        ecosystem: !Ref ecosystem
+        appfeature: !Ref appfeature
+        UserPoolName: !Ref UserPoolName
+        ClientName: !Ref ClientName
+  SQSstack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://testharitest.s3.us-east-2.amazonaws.com/sqstrigger.yaml
