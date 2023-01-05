@@ -1,0 +1,25 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  jayaq:
+    Type: AWS::SQS::Queue
+    Properties:
+      DelaySeconds: 0
+      VisibilityTimeout: 120
+  jayaq1:
+    Type: AWS::SQS::Queue
+    Properties:
+      DelaySeconds: 0
+      VisibilityTimeout: 120
+Outputs:
+    jayaqArn:
+      Description: Queue Arn for Standard queue
+      Value: !GetAtt jayaq.Arn
+      Export:
+        Name: jayaqArn
+      
+    jayaq1Arn:
+      Description: Queue Arn for Standard queue
+      Value: !GetAtt jayaq1.Arn
+      Export:
+        Name: jayaq1
