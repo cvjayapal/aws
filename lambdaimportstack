@@ -1,0 +1,94 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+        - PolicyName: allowLambdaLogs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - logs:*
+              Resource: arn:aws:logs:*:*:*
+        - PolicyName: allowSqs
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - sqs:ReceiveMessage
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:ChangeMessageVisibility
+              Resource: '*'
+  testLambdaLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties: 
+      CompatibleRuntimes: 
+        - nodejs16.x
+      Content: 
+        S3Bucket: testharitest
+        S3Key: layers.zip
+      Description: Layer test
+      LayerName: testinglayer
+  
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: testharitest
+        S3Key: my-nodejs-app.zip
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      FunctionName: jayapal
+      Runtime: nodejs16.x
+      Timeout: 60
+      MemorySize: 512
+      Layers: 
+        - !Ref testLambdaLayer
+      
+  LambdaFunctionEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 10
+      Enabled: true
+      EventSourceArn: 
+        Fn::ImportValue:
+          jayaqArn
+      FunctionName: !GetAtt LambdaFunction.Arn
+  LambdaFunction1:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: testharitest
+        S3Key: my-nodejs-app.zip
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      FunctionName: jayapalreddy
+      Runtime: nodejs16.x
+      Timeout: 60
+      MemorySize: 512
+      Layers: 
+        - !Ref testLambdaLayer
+      
+  LambdaFunction1EventSourceMappingone:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 10
+      Enabled: true
+      EventSourceArn: 
+        Fn::ImportValue:
+          jayaq1
+      FunctionName: !GetAtt LambdaFunction1.Arn
